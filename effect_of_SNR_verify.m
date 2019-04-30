@@ -98,15 +98,23 @@ noisePower = sigPower / SNR
 noisePower = 29 * A^2 / (60 * SNR)
 nbNoiseC = sqrt(noisePower) .* randn(1, length(a)); % 同相分量
 % nbNoise = abs(hilbert(nbNoiseC)); % 利用 Hilbert 变换得到噪声的正交分量
-y = abs(a + nbNoiseC);
+y = a + nbNoiseC;
+
+% >>> 自相关累积 <<<
+% 5 点自相关累积
+for i = 1 : length(y) - 5
+    y(i) = dot(y(i : i + 4), y(i + 1 : i + 5));
+end
+
+y = abs(y);
 figure;
-stem(t0, abs(y));
+stem(t0, y);
 title('加噪信号');
 xlabel('Time(\mus)');
 ylabel('Amplitude');
-axis([t0(1) t0(end) 0 A * 3]);
+axis([t0(1) t0(end) 0 max(y)]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', 0 : 4 : 120, 'ytick', 0 : floor(A / 3) : A * 3, 'fontsize', 13);
+set(gca, 'box', 'off', 'xtick', 0 : 4 : 120, 'ytick', linspace(min(y), max(y), 10), 'fontsize', 13);
 
 % >>> 报头检测门限动态指标（电平指标）<<<
 % 理想信号
@@ -125,7 +133,6 @@ disp(['理想模型信号段除报头段卷积与均值之比（理论，统计平均）： ', num2str(mean(
 
 % 加噪信号（改变SNR）
 adsbReal = y(441 : 3080);
-mean(adsbReal(1 : 176))
 ra1n = dot(preambleTemp, adsbReal(1 : 176)) / mean(adsbReal(1 : 176));
 disp(['加噪模型报头卷积与均值之比（加噪，样本数量1）： ', num2str(ra1n)]);
 

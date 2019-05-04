@@ -35,12 +35,31 @@ grid off;
 set(gca, 'gridlinestyle', ':', 'gridcolor', 'k', 'gridalpha', 0.5);
 
 sigPower = sum(abs(p) .^ 2) / length(p);
-SNR = 0.5; % 比例形式
+SNR = 0.1; % 比例形式
 noisePower = sigPower / SNR;
 noise = sqrt(noisePower) .* randn(1, length(p));
 
 p = p + noise;
 r = xcorr(p, p) / length(p);
+
+figure;
+plot(1 : length(r), r, 'color', 'k', 'linewidth', 1.5);
+% title('自相关');
+xlabel('Time');
+ylabel('Amplitude');
+axis([1 length(r) min(r) max(r)]);
+set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(min(r), max(r), 6), 'fontsize', 13);
+grid off;
+set(gca, 'gridlinestyle', ':', 'gridcolor', 'k', 'gridalpha', 0.5);
+
+% 自相关累积
+p_cumu = zeros(1, length(p) - 3);
+for i = 2 : length(p) - 3
+    p_cumu(i) = 1 / 4 * p(i : i + 3) * p(i - 1 : i + 2)';
+end
+
+r = xcorr(p_cumu, p_cumu) / length(p_cumu);
 
 figure;
 plot(1 : length(r), r, 'color', 'k', 'linewidth', 1.5);

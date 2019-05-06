@@ -20,12 +20,24 @@ axis([t0(1) t0(end) -2 2]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
 set(gca, 'box', 'off', 'xtick', 0:4:120, 'ytick', -1:0.5:1, 'fontsize', 13);
 
+% >>> 构建数据报文 <<<
+K = 112;
+d0 = randi(2, 1, K) - 1;
+d = zeros(1, length(t0));
+for k = 1 : 112
+    d = d + b(t0 - (k + 7) * Tb, d0(k));
+end
+
+% >>> 合成基带信号 <<<
+a = h + d;
+
+% >>> 报头的自相关特征 <<<
 p = h(441 : 441 + 175);
 r = xcorr(p, p) / length(p);
 
 figure;
 plot(1 : length(r), r, 'color', 'k', 'linewidth', 1.5);
-% title('自相关');
+title('报头的自相关特征');
 xlabel('Time');
 ylabel('Amplitude');
 axis([1 length(r) min(r) max(r)]);
@@ -34,6 +46,7 @@ set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(min(r), max(r), 6), 'fonts
 grid off;
 set(gca, 'gridlinestyle', ':', 'gridcolor', 'k', 'gridalpha', 0.5);
 
+% >>> 报头的自相关特征（添加噪声） <<<
 sigPower = sum(abs(p) .^ 2) / length(p);
 SNR = 0.1; % 比例形式
 noisePower = sigPower / SNR;
@@ -44,7 +57,7 @@ r = xcorr(p, p) / length(p);
 
 figure;
 plot(1 : length(r), r, 'color', 'k', 'linewidth', 1.5);
-% title('自相关');
+title('报头的自相关特征（添加噪声）');
 xlabel('Time');
 ylabel('Amplitude');
 axis([1 length(r) min(r) max(r)]);
@@ -53,7 +66,7 @@ set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(min(r), max(r), 6), 'fonts
 grid off;
 set(gca, 'gridlinestyle', ':', 'gridcolor', 'k', 'gridalpha', 0.5);
 
-% 自相关累积
+% >>> 报头的自相关特征（添加噪声 + 自相关累积） <<<
 p_cumu = zeros(1, length(p) - 3);
 for i = 2 : length(p) - 3
     p_cumu(i) = 1 / 4 * p(i : i + 3) * p(i - 1 : i + 2)';
@@ -63,11 +76,115 @@ r = xcorr(p_cumu, p_cumu) / length(p_cumu);
 
 figure;
 plot(1 : length(r), r, 'color', 'k', 'linewidth', 1.5);
-% title('自相关');
+title('报头的自相关特征（添加噪声 + 自相关累积）');
 xlabel('Time');
 ylabel('Amplitude');
 axis([1 length(r) min(r) max(r)]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
 set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(min(r), max(r), 6), 'fontsize', 13);
+grid off;
+set(gca, 'gridlinestyle', ':', 'gridcolor', 'k', 'gridalpha', 0.5);
+
+% >>> 互相关检测 <<<
+preamble_temp = [ones(1, 11) zeros(1, 11) ones(1, 11) zeros(1, 44) ones(1, 11) zeros(1, 11) ones(1, 11) zeros(1, 66)];
+
+s = length(a);
+m = length(preamble_temp);
+R = zeros(1, s - m + 1);
+
+for i = 1 : s - m + 1
+    R(i) = preamble_temp * a(i : i + m - 1)';
+end
+
+figure;
+plot(1 : length(R), R, 'color', 'k', 'linewidth', 1.5);
+title('互相关检测');
+xlabel('Time');
+ylabel('Amplitude');
+axis([1 length(R) min(R) max(R)]);
+set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(min(R), max(R), 6), 'fontsize', 13);
+grid off;
+set(gca, 'gridlinestyle', ':', 'gridcolor', 'k', 'gridalpha', 0.5);
+
+% >>> 倍数检测 <<<
+for i = 1 : s - m + 1
+    mean_current = mean(a(i : i + m - 1));
+    R(i) = preamble_temp * a(i : i + m - 1)' / mean_current;
+end
+
+figure;
+plot(1 : length(R), R, 'color', 'k', 'linewidth', 1.5);
+title('倍数检测');
+xlabel('Time');
+ylabel('Amplitude');
+axis([1 length(R) min(R) max(R)]);
+set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(min(R), max(R), 6), 'fontsize', 13);
+grid off;
+set(gca, 'gridlinestyle', ':', 'gridcolor', 'k', 'gridalpha', 0.5);
+
+% >>> 互相关检测（添加噪声） <<<
+sigPower = sum(abs(a) .^ 2) / length(a);
+SNR = 0.1; % 比例形式
+noisePower = sigPower / SNR;
+noise = sqrt(noisePower) .* randn(1, length(a));
+
+a = abs(a + noise);
+
+for i = 1 : s - m + 1
+    R(i) = preamble_temp * a(i : i + m - 1)';
+end
+
+figure;
+plot(1 : length(R), R, 'color', 'k', 'linewidth', 1.5);
+title('互相关检测（添加噪声）');
+xlabel('Time');
+ylabel('Amplitude');
+axis([1 length(R) min(R) max(R)]);
+set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(min(R), max(R), 6), 'fontsize', 13);
+grid off;
+set(gca, 'gridlinestyle', ':', 'gridcolor', 'k', 'gridalpha', 0.5);
+
+% >>> 倍数检测（添加噪声） <<<
+
+for i = 1 : s - m + 1
+    mean_current = mean(a(i : i + m - 1));
+    R(i) = preamble_temp * a(i : i + m - 1)' / mean_current;
+end
+
+figure;
+plot(1 : length(R), R, 'color', 'k', 'linewidth', 1.5);
+title('倍数检测（添加噪声）');
+xlabel('Time');
+ylabel('Amplitude');
+axis([1 length(R) min(R) max(R)]);
+set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(min(R), max(R), 6), 'fontsize', 13);
+grid off;
+set(gca, 'gridlinestyle', ':', 'gridcolor', 'k', 'gridalpha', 0.5);
+
+% >>> 倍数检测（添加噪声 + 自相关累积） <<<
+a_cumu = zeros(1, length(a) - 3);
+for i = 2 : length(a_cumu) - 3
+    a_cumu(i) = 1 / 4 * a(i : i + 3) * a(i - 1 : i + 2)';
+end
+
+a_cumu = abs(a_cumu);
+
+for i = 1 : length(a_cumu) - m + 1
+    mean_current = mean(a_cumu(i : i + m - 1));
+    R(i) = preamble_temp * a_cumu(i : i + m - 1)' / mean_current;
+end
+
+figure;
+plot(1 : length(R), R, 'color', 'k', 'linewidth', 1.5);
+title('倍数检测（添加噪声 + 自相关累积）');
+xlabel('Time');
+ylabel('Amplitude');
+axis([1 length(R) min(R) max(R)]);
+set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(min(R), max(R), 6), 'fontsize', 13);
 grid off;
 set(gca, 'gridlinestyle', ':', 'gridcolor', 'k', 'gridalpha', 0.5);

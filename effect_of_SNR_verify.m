@@ -1,9 +1,9 @@
 clear, clc;
 close all;
 
-fs = 22; % MHz 采样频率，应大于 2 * 1090
+fs = 66; % MHz 采样频率，应大于 2 * 1090
 Tb = 1; % us
-t0 = -20 : 1/fs : 140;
+t0 = -80 : 1/fs : 200; % 时间序列，其中 0-120 为 ADS-B 报文
 b = @(t, d)(d - 0.5)*(rect(t) - rect(t - Tb / 2.0));
 
 scrsz = get(0,'ScreenSize'); % 获取屏幕尺寸
@@ -40,7 +40,7 @@ xlabel('Time(\mus)');
 ylabel('Amplitude');
 axis([t0(1) t0(end) -A 2 * A]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', linspace(0, 120, 31), 'ytick', linspace(-A, 2 * A, 4), 'fontsize', 13);
+set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(-A, 2 * A, 4), 'fontsize', 13);
 set(gca, 'yticklabel', {'-A', '0', 'A', '2A'});
 
 % >>> 加入高斯白噪声 <<<
@@ -51,17 +51,19 @@ noisePower = sigPower / SNR;
 noise = sqrt(noisePower) .* randn(1, length(a));
 y = a + noise;
 
+y(y<0)=0; % 去除负值
+
 figure;
 stem(t0, y, 'color', 'k', 'linewidth', 1);
 hold on;
-stem(t0, abs(y), 'color', 'r', 'linewidth', 1);
+plot(t0, abs(y), 'color', 'r', 'linewidth', 1);
 legend('y', '|y|');
 title(['加噪基带信号y和|y|（信噪比SNR=',num2str(SNR),'）']);
 xlabel('Time(\mus)');
 ylabel('Amplitude');
 axis([t0(1) t0(end) min(y) max(y)]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', linspace(0, 120, 31), 'ytick', linspace(-A, 2 * A, 4), 'fontsize', 13);
+set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(-A, 2 * A, 4), 'fontsize', 13);
 set(gca, 'yticklabel', {'-A', '0', 'A', '2A'});
 
 % >>> 自相关累积 <<<
@@ -75,131 +77,175 @@ end
 figure;
 stem(t0(1 : length(y_cumu)), y_cumu, 'color', 'k', 'linewidth', 1);
 hold on;
-stem(t0(1 : length(y_cumu)), abs(y_cumu), 'color', 'r', 'linewidth', 1);
+plot(t0(1 : length(y_cumu)), abs(y_cumu), 'color', 'r', 'linewidth', 1);
 legend('y_{cumu}', '|y_{cumu}|');
 title('y的自相关累积y_{cumu}及|y_{cumu}|');
 xlabel('Time(\mus)');
 ylabel('Amplitude');
 axis([t0(1) t0(end) min(y_cumu) max(y_cumu)]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', linspace(0, 120, 31), 'ytick', linspace(-A, 2 * A, 4), 'fontsize', 13);
+set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(-A, 2 * A, 4), 'fontsize', 13);
 set(gca, 'yticklabel', {'-A', '0', 'A', '2A'});
 
-% >>> 报头检测门限动态指标（电平指标）<<<
+% >>> 分析lambda <<<
 % 标准报头检测模板
-preambleTemp = [ones(1, 11) zeros(1, 11) ones(1, 11) zeros(1, 44) ones(1, 11) zeros(1, 11) ones(1, 11) zeros(1, 66)];
+n_half_us = fs / 2;
+preambleTemp = [ones(1, n_half_us) zeros(1, n_half_us) ones(1, n_half_us) zeros(1, 4 * n_half_us) ones(1, n_half_us) zeros(1, n_half_us) ones(1, n_half_us) zeros(1, 6 * n_half_us)];
 
-adsbStd = a(441 : 3080);
-ra1 = dot(preambleTemp, adsbStd(1 : 176)) / mean(adsbStd(1 : 176));
-disp(['理想模型报头卷积与均值之比（理论）： ', num2str(ra1)]);
-
-ra2 = zeros(2, 2464);
-for i = 176 : 2464
-    sig = adsbStd(i + 1 : i + 176); 
-    ra2(1, i) = dot(preambleTemp, sig) / mean(sig);
+% 理想信号a lambda
+K = 8 * fs;
+R = zeros(1, length(a) - K + 1);
+mu = zeros(1, length(a) - K + 1);
+for m = 1 : length(a) - K + 1
+    mu(m) = mean(a(m : m + K - 1));
+    R(m) = 1 / K * preambleTemp * a(m : m + K - 1)';
 end
-disp(['理想模型信号段除报头段卷积与均值之比（理论，统计平均）： ', num2str(mean(ra2(1, :)))]);
-
-% 加噪信号（改变SNR）
-adsbReal = y(441 : 3080);
-ra1n = dot(preambleTemp, adsbReal(1 : 176)) / mean(adsbReal(1 : 176));
-disp(['加噪模型报头卷积与均值之比（加噪，样本数量1）： ', num2str(ra1n)]);
-
-for i = 176 : 2464
-    sig = adsbReal(i + 1 : i + 176); 
-    ra2(2, i) = dot(preambleTemp, sig) / mean(sig);
-end
-disp(['加噪模型信号段除报头段卷积与均值之比（加噪，统计平均）： ', num2str(mean(ra2(2, :)))]);
+lambda = R ./ mu;
 
 figure;
-hold on;
-plot(1:length(ra2(1,:)) , ra2(1,:), 'color', 'r');
-plot([1, length(ra2(1,:))], [mean(ra2(1,:)), mean(ra2(1,:))], 'color', 'g');
-plot(1:length(ra2(2,:)) , ra2(2,:), 'color', 'b');
-plot([1, length(ra2(2,:))], [mean(ra2(2,:)), mean(ra2(2,:))], 'color', 'm');
-legend('理想信号', '理想均值', '有噪信号', '有噪均值');
-title('信号内非报头段倍数分析（理想+有噪）');
-xlabel('点数');
-ylabel('倍数');
-axis([1 length(ra2(1,:)) 0 100]);
+plot(t0(1 : length(lambda)), lambda, 'color', 'k', 'linewidth', 1);
+title('a的\lambda');
+xlabel('Time(\mus)');
+ylabel('\lambda');
+axis([t0(1) t0(end) 0 1]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', 1 : 500 : length(ra2(1,:)), 'ytick', 0 : 20 : 100, 'fontsize', 13);
+set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, 1, 5), 'fontsize', 13);
 
-% 纯噪声统计特性
-noiseSeq = abs([y(1 : 440), y(3081 : 3521)]);
-ra3 = zeros(1, length(noiseSeq) - 176);
-for i = 1 : length(noiseSeq) - 176
-    ra3(i) = dot(preambleTemp, noiseSeq(i + 1 : i + 176)) / mean(noiseSeq(i + 1 : i + 176));
+% 加噪信号|y| lambda
+K = 8 * fs;
+y_abs = abs(y);
+R = zeros(1, length(y_abs) - K + 1);
+mu = zeros(1, length(y_abs) - K + 1);
+for m = 1 : length(y_abs) - K + 1
+    mu(m) = mean(y_abs(m : m + K - 1));
+    R(m) = 1 / K * preambleTemp * y_abs(m : m + K - 1)';
 end
-
-disp(['噪声倍数（统计平均）： ', num2str(mean(ra3))]);
+lambda = R ./ mu;
 
 figure;
-plot(1:length(ra3) , ra3);
-hold on;
-plot([1, length(ra3)], [mean(ra3), mean(ra3)]);
-title('纯噪声倍数分析');
-xlabel('点数');
-ylabel('倍数');
-axis([1 length(ra3) 20 70]);
+plot(t0(1 : length(lambda)), lambda, 'color', 'k', 'linewidth', 1);
+title('|y|的\lambda');
+xlabel('Time(\mus)');
+ylabel('\lambda');
+axis([t0(1) t0(end) 0 1]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', 1 : 100 : length(ra3), 'ytick', 20 : 5 : 70, 'fontsize', 13);
+set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, 1, 5), 'fontsize', 13);
 
-disp(['噪声对检测门限的影响（降低倍数）：', num2str(ra1 / ra1n)]);
-
-% >>> 报头检测门限动态指标（功率指标） <<<
-
-disp(' ');
-
-% preambleTemp = A * preambleTemp;
-
-% 理想信号
-preamblePower = sum(adsbStd(1 : 176) .^ 2) / 176;
-ra1 = dot(preambleTemp, adsbStd(1 : 176)) / preamblePower;
-disp(['理想模型报头卷积与均值之比（理论）： ', num2str(ra1)]);
-
-ra2 = zeros(2, 2464);
-for i = 176 : 2464
-    sig = adsbStd(i + 1 : i + 176); 
-    ra2(1, i) = dot(preambleTemp, sig) / (sum(sig .^ 2) / 176);
+% 自相关累积后的加噪信号的|y_cumu| lambda
+K = 8 * fs;
+y_cumu_abs = abs(y_cumu);
+R = zeros(1, length(y_cumu_abs) - K + 1);
+mu = zeros(1, length(y_cumu_abs) - K + 1);
+for m = 1 : length(y_cumu_abs) - K + 1
+    mu(m) = mean(y_cumu_abs(m : m + K - 1));
+    R(m) = 1 / K * preambleTemp * y_cumu_abs(m : m + K - 1)';
 end
-disp(['理想模型信号段除报头段卷积与均值之比（理论，统计平均）： ', num2str(mean(ra2(1, :)))]);
+lambda = R ./ mu;
 
-% 加噪信号（改变SNR）
-preamblePower = sum(adsbReal(1 : 176) .^ 2) / 176;
-ra1n = dot(preambleTemp, adsbReal(1 : 176)) / preamblePower;
-disp(['加噪模型报头卷积与均值之比（加噪，样本数量1）： ', num2str(ra1n)]);
-
-for i = 176 : 2464
-    sig = adsbReal(i + 1 : i + 176); 
-    ra2(2, i) = dot(preambleTemp, sig) / (sum(sig .^ 2) / 176);
-end
-disp(['加噪模型信号段除报头段卷积与均值之比（加噪，统计平均）： ', num2str(mean(ra2(2, :)))]);
-
-% 纯噪声
-noiseSeq = abs([y(1 : 440), y(3081 : 3521)]);
-ra3 = zeros(1, length(noiseSeq) - 176);
-for i = 1 : length(noiseSeq) - 176
-    noisePower = sum(noiseSeq(i + 1 : i + 176) .^ 2) / 176;
-    ra3(i) = dot(preambleTemp, noiseSeq(i + 1 : i + 176)) / noisePower;
-end
-disp(['噪声倍数（统计平均）： ', num2str(mean(ra3))]);
-
-disp(['噪声对检测门限的影响（降低倍数）：', num2str(ra1 / ra1n)]);
-
-disp(' ');
-disp(['噪声平均功率：', num2str(sum(noiseSeq .^ 2) / length(noiseSeq)), 'W']);
-disp(['报头平均功率：', num2str(preamblePower), 'W']);
-
-power = zeros(1, length(y) - 176);
-for i = 1 : length(y) - 175
-    power(i) = sum(y(i : i + 176 - 1) .^ 2) / 176;
-end
 figure;
-plot(power);
+plot(t0(1 : length(lambda)), lambda, 'color', 'k', 'linewidth', 1);
+title('|y_{cumu}|的\lambda');
+xlabel('Time(\mus)');
+ylabel('\lambda');
+axis([t0(1) t0(end) 0 1]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, 1, 5), 'fontsize', 13);
 
+% >>> 分析8微秒平均功率 <<<
+% 理想信号a 
+K = 8 * fs;
+power = zeros(1, length(a) - K + 1);
+for m = 1 : length(a) - K + 1
+    power(m) = 1 / K * sum( a(m : m + K - 1) .^ 2 );
+end
 
+figure;
+plot(t0(1 : length(power)), power, 'color', 'k', 'linewidth', 1);
+title('a的8\mus平均功率');
+xlabel('Time(\mus)');
+ylabel('Power');
+axis([t0(1) t0(end) 0 A^2]);
+set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, A^2, 5), 'fontsize', 13);
+set(gca, 'yticklabel', {'0', '', 'A^2 / 2', '', 'A^2'});
 
+% 加噪信号|y|
+K = 8 * fs;
+y_abs = abs(y);
+power = zeros(1, length(y_abs) - K + 1);
+for m = 1 : length(y_abs) - K + 1
+    power(m) = 1 / K * sum( y_abs(m : m + K - 1) .^ 2 );
+end
 
+figure;
+plot(t0(1 : length(power)), power, 'color', 'k', 'linewidth', 1);
+title('|y|的8\mus平均功率');
+xlabel('Time(\mus)');
+ylabel('Power');
+axis([t0(1) t0(end) 0 (floor(max(power) / A^2) + 3) * A^2]);
+set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, (floor(max(power) / A^2) + 3) * A^2, 5), 'fontsize', 13);
+set(gca, 'yticklabel', {'0', '', [num2str((floor(max(power) / A^2) + 3) / 2 ),'A^2'], '', [num2str((floor(max(power) / A^2) + 3)),'A^2']});
 
+% 自相关累积后的加噪信号的|y_cumu|
+K = 8 * fs;
+y_cumu_abs = abs(y_cumu);
+power = zeros(1, length(y_cumu_abs) - K + 1);
+for m = 1 : length(y_cumu_abs) - K + 1
+    power(m) = 1 / K * sum( y_cumu_abs(m : m + K - 1) .^ 2 );
+end
+
+figure;
+plot(t0(1 : length(power)), power, 'color', 'k', 'linewidth', 1);
+title('|y_{cumu}|的8\mus平均功率');
+xlabel('Time(\mus)');
+ylabel('Power');
+axis([t0(1) t0(end) 0 (floor(max(power) / A^4) + 3) * A^4]);
+set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, (floor(max(power) / A^4) + 3) * A^4, 5), 'fontsize', 13);
+set(gca, 'yticklabel', {'0', '', [num2str((floor(max(power) / A^4) + 3) / 2 ),'A^4'], '', [num2str((floor(max(power) / A^4) + 3)),'A^4']});
+
+% % >>> 分析瞬时功率 <<<
+% % 理想信号a
+% K = 8 * fs;
+% power = a .^ 2;
+% 
+% figure;
+% plot(t0(1 : length(power)), power, 'color', 'k', 'linewidth', 1);
+% title('a的瞬时功率');
+% xlabel('Time(\mus)');
+% ylabel('Power');
+% axis([t0(1) t0(end) 0 A^2]);
+% set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+% set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, A^2, 5), 'fontsize', 13);
+% set(gca, 'yticklabel', {'0', '', 'A^2 / 2', '', 'A^2'});
+% 
+% % 加噪信号|y|
+% K = 8 * fs;
+% y_abs = abs(y);
+% power = y_abs .^ 2;
+% 
+% figure;
+% plot(t0(1 : length(power)), power, 'color', 'k', 'linewidth', 1);
+% title('|y|的瞬时功率');
+% xlabel('Time(\mus)');
+% ylabel('Power');
+% axis([t0(1) t0(end) 0 (floor(max(power) / A^2) + 3) * A^2]);
+% set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+% set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, (floor(max(power) / A^2) + 3) * A^2, 5), 'fontsize', 13);
+% set(gca, 'yticklabel', {'0', '', [num2str((floor(max(power) / A^2) + 3) / 2 ),'A^2'], '', [num2str((floor(max(power) / A^2) + 3)),'A^2']});
+% 
+% % 自相关累积后的加噪信号的|y_cumu|
+% K = 8 * fs;
+% y_cumu_abs = abs(y_cumu);
+% power = y_cumu_abs .^ 2;
+% 
+% figure;
+% plot(t0(1 : length(power)), power, 'color', 'k', 'linewidth', 1);
+% title('|y_{cumu}|的瞬时功率');
+% xlabel('Time(\mus)');
+% ylabel('Power');
+% axis([t0(1) t0(end) 0 (floor(max(power) / A^4) + 3) * A^4]);
+% set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+% set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, (floor(max(power) / A^4) + 3) * A^4, 5), 'fontsize', 13);
+% set(gca, 'yticklabel', {'0', '', [num2str((floor(max(power) / A^4) + 3) / 2 ),'A^4'], '', [num2str((floor(max(power) / A^4) + 3)),'A^4']});

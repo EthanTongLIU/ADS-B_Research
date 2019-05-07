@@ -8,39 +8,12 @@ b = @(t, d)(d - 0.5)*(rect(t) - rect(t - Tb / 2.0));
 
 scrsz = get(0,'ScreenSize'); % 获取屏幕尺寸
 
-% % >>> PPM 调制示意图 <<<
-% figure;
-% ppm1 =   0.5 * (rect(t0 - 7 * Tb) - rect(t0 - 7 * Tb - 0.5));
-% ppm0 = - 0.5 * (rect(t0 - 7 * Tb) - rect(t0 - 7 * Tb - 0.5));
-% subplot(121);
-% plot(t0(length(t0(t0<=5)):length(t0(t0<=10))), ppm1(length(t0(t0<=5)):length(t0(t0<=10))), 'linewidth', 2, 'color', 'r');
-% xlabel('Time(\mus)');
-% ylabel('Amplitude');
-% set(gca, 'box', 'off', 'xtick', 7:0.5:8, 'ytick', -1:0.5:1);
-% set(gca, 'xticklabel', {'t_s','t_s+0.5','t_s+1'}, 'fontsize', 15);
-% subplot(122);
-% plot(t0(length(t0(t0<=5)):length(t0(t0<=10))), ppm0(length(t0(t0<=5)):length(t0(t0<=10))), 'linewidth', 2, 'color', 'r');
-% xlabel('Time(\mus)');
-% ylabel('Amplitude');
-% set(gca, 'box', 'off', 'xtick', 7:0.5:8, 'ytick', -1:0.5:1);
-% set(gca, 'xticklabel', {'t_s','t_s+0.5','t_s+1'}, 'fontsize', 15);
-% set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-
 % >>> 构建报头 <<<
 h = zeros(1, length(t0));
 for i = 0 : 1 : 15
     h = h + (-0.5) * rect(t0 - i * Tb / 2);
 end
 h = h + rect(t0) + rect(t0 - 1) + rect(t0 - 3.5) + rect(t0 - 4.5);
-
-% figure;
-% plot(t0, h, 'color', 'b', 'linewidth', 1.5);
-% title('报头段');
-% xlabel('Time(\mus)');
-% ylabel('Amplitude');
-% axis([t0(1) t0(end) -2 2]);
-% set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-% set(gca, 'box', 'off', 'xtick', 0:4:120, 'ytick', -1:0.5:1, 'fontsize', 13);
 
 % >>> 构建数据报文 <<<
 K = 112;
@@ -50,74 +23,70 @@ for k = 1 : 112
     d = d + b(t0 - (k + 7) * Tb, d0(k));
 end
 
-% figure;
-% plot(t0, d, 'color', 'r', 'linewidth', 1.5);
-% title('数据报文段');
-% xlabel('Time(\mus)');
-% ylabel('Amplitude');
-% axis([t0(1) t0(end) -2 2]);
-% set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-% set(gca, 'box', 'off', 'xtick', 0:4:120, 'ytick', -1:0.5:1, 'fontsize', 13);
-
 % >>> 合成基带信号 <<<
 a = h + d;
 for k = 0 : 1 : 239
     a = a + 0.5 * rect(t0 - k * Tb / 2);
 end
 
-figure;
-plot(t0, a, 'color', 'k', 'linewidth', 1.5);
-title('基带信号');
-xlabel('Time(\mus)');
-ylabel('Amplitude');
-axis([t0(1) t0(end) -2 2]);
-set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', 0:4:120, 'ytick', -1:0.5:1, 'fontsize', 13);
-
 % >>> 改变基带信号电平 <<<
 A = 40;
 a = A * a;
 
-% % >>> 加噪声（采用内置函数） <<<
-% figure;
-% SNR = 0.2; % 信噪比，单位 dB 或是比值 
-% y = abs(awgn(a, SNR, 'measured', 'linear')); % 先测量信号强度，单位 dBW/W
-% plot(t0, y);
-% title('加噪信号');
-% xlabel('Time(\mus)');
-% ylabel('Amplitude');
-% axis([t0(1) t0(end) 0 A * 3]);
-% set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-% set(gca, 'box', 'off', 'xtick', 0 : 4 : 120, 'ytick', 0 : floor(A / 3) : A * 3, 'fontsize', 13);
-
-% >>> 加入窄带高斯白噪声 <<<
-% 测量信号功率
-sigPower = sum(abs(a) .^ 2) / length(a)
-SNR = 1; % 比例形式
-noisePower = sigPower / SNR
-noisePower = 29 * A^2 / (60 * SNR)
-nbNoiseC = sqrt(noisePower) .* randn(1, length(a)); % 同相分量
-% nbNoise = abs(hilbert(nbNoiseC)); % 利用 Hilbert 变换得到噪声的正交分量
-y = a + nbNoiseC;
-
-% >>> 自相关累积 <<<
-% 5 点自相关累积
-for i = 1 : length(y) - 5
-    y(i) = dot(y(i : i + 4), y(i + 1 : i + 5));
-end
-
-y = abs(y);
 figure;
-stem(t0, y);
-title('加噪信号');
+plot(t0, a, 'color', 'k', 'linewidth', 1.5);
+title('基带信号a');
 xlabel('Time(\mus)');
 ylabel('Amplitude');
-axis([t0(1) t0(end) 0 max(y)]);
+axis([t0(1) t0(end) -A 2 * A]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', 0 : 4 : 120, 'ytick', linspace(min(y), max(y), 10), 'fontsize', 13);
+set(gca, 'box', 'off', 'xtick', linspace(0, 120, 31), 'ytick', linspace(-A, 2 * A, 4), 'fontsize', 13);
+set(gca, 'yticklabel', {'-A', '0', 'A', '2A'});
+
+% >>> 加入高斯白噪声 <<<
+% 测量信号功率
+sigPower = 29 * A^2 / 60;
+SNR = 1; % 比例形式
+noisePower = sigPower / SNR;
+noise = sqrt(noisePower) .* randn(1, length(a));
+y = a + noise;
+
+figure;
+stem(t0, y, 'color', 'k', 'linewidth', 1);
+hold on;
+stem(t0, abs(y), 'color', 'r', 'linewidth', 1);
+legend('y', '|y|');
+title(['加噪基带信号y和|y|（信噪比SNR=',num2str(SNR),'）']);
+xlabel('Time(\mus)');
+ylabel('Amplitude');
+axis([t0(1) t0(end) min(y) max(y)]);
+set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+set(gca, 'box', 'off', 'xtick', linspace(0, 120, 31), 'ytick', linspace(-A, 2 * A, 4), 'fontsize', 13);
+set(gca, 'yticklabel', {'-A', '0', 'A', '2A'});
+
+% >>> 自相关累积 <<<
+% M 点自相关累积
+M = 4;
+y_cumu = zeros(1, length(y) - M);
+for m = 1 : length(y) - M
+    y_cumu(m) = 1 / M * dot(y(m + 1 : m + M), y(m : m + M - 1));
+end
+
+figure;
+stem(t0(1 : length(y_cumu)), y_cumu, 'color', 'k', 'linewidth', 1);
+hold on;
+stem(t0(1 : length(y_cumu)), abs(y_cumu), 'color', 'r', 'linewidth', 1);
+legend('y_{cumu}', '|y_{cumu}|');
+title('y的自相关累积y_{cumu}及|y_{cumu}|');
+xlabel('Time(\mus)');
+ylabel('Amplitude');
+axis([t0(1) t0(end) min(y_cumu) max(y_cumu)]);
+set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+set(gca, 'box', 'off', 'xtick', linspace(0, 120, 31), 'ytick', linspace(-A, 2 * A, 4), 'fontsize', 13);
+set(gca, 'yticklabel', {'-A', '0', 'A', '2A'});
 
 % >>> 报头检测门限动态指标（电平指标）<<<
-% 理想信号
+% 标准报头检测模板
 preambleTemp = [ones(1, 11) zeros(1, 11) ones(1, 11) zeros(1, 44) ones(1, 11) zeros(1, 11) ones(1, 11) zeros(1, 66)];
 
 adsbStd = a(441 : 3080);

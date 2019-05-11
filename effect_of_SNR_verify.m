@@ -68,7 +68,7 @@ set(gca, 'yticklabel', {'-A', '0', 'A', '2A'});
 
 % >>> 自相关累积 <<<
 % M 点自相关累积
-M = 4;
+M = 13;
 y_cumu = zeros(1, length(y) - M);
 for m = 1 : length(y) - M
     y_cumu(m) = 1 / M * dot(y(m + 1 : m + M), y(m : m + M - 1));
@@ -84,8 +84,8 @@ xlabel('Time(\mus)');
 ylabel('Amplitude');
 axis([t0(1) t0(end) min(y_cumu) max(y_cumu)]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(-A, 2 * A, 4), 'fontsize', 13);
-set(gca, 'yticklabel', {'-A', '0', 'A', '2A'});
+set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(-A^2, 4 * A^2, 6), 'fontsize', 13);
+set(gca, 'yticklabel', {'-A^2', '0', 'A^2', '2A^2', '3A^2', '4A^2'});
 
 % >>> 分析lambda <<<
 % 标准报头检测模板
@@ -151,68 +151,17 @@ axis([t0(1) t0(end) 0 1]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
 set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, 1, 5), 'fontsize', 13);
 
-% >>> 分析8微秒平均功率 <<<
-% 理想信号a 
-K = 8 * fs;
-power = zeros(1, length(a) - K + 1);
-for m = 1 : length(a) - K + 1
-    power(m) = 1 / K * sum( a(m : m + K - 1) .^ 2 );
-end
-
-figure;
-plot(t0(1 : length(power)), power, 'color', 'k', 'linewidth', 1);
-title('a的8\mus平均功率');
-xlabel('Time(\mus)');
-ylabel('Power');
-axis([t0(1) t0(end) 0 A^2]);
-set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, A^2, 5), 'fontsize', 13);
-set(gca, 'yticklabel', {'0', '', 'A^2 / 2', '', 'A^2'});
-
-% 加噪信号|y|
-K = 8 * fs;
-y_abs = abs(y);
-power = zeros(1, length(y_abs) - K + 1);
-for m = 1 : length(y_abs) - K + 1
-    power(m) = 1 / K * sum( y_abs(m : m + K - 1) .^ 2 );
-end
-
-figure;
-plot(t0(1 : length(power)), power, 'color', 'k', 'linewidth', 1);
-title('|y|的8\mus平均功率');
-xlabel('Time(\mus)');
-ylabel('Power');
-axis([t0(1) t0(end) 0 (floor(max(power) / A^2) + 3) * A^2]);
-set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, (floor(max(power) / A^2) + 3) * A^2, 5), 'fontsize', 13);
-set(gca, 'yticklabel', {'0', '', [num2str((floor(max(power) / A^2) + 3) / 2 ),'A^2'], '', [num2str((floor(max(power) / A^2) + 3)),'A^2']});
-
-% 自相关累积后的加噪信号的|y_cumu|
-K = 8 * fs;
-y_cumu_abs = abs(y_cumu);
-power = zeros(1, length(y_cumu_abs) - K + 1);
-for m = 1 : length(y_cumu_abs) - K + 1
-    power(m) = 1 / K * sum( y_cumu_abs(m : m + K - 1) .^ 2 );
-end
-
-figure;
-plot(t0(1 : length(power)), power, 'color', 'k', 'linewidth', 1);
-title('|y_{cumu}|的8\mus平均功率');
-xlabel('Time(\mus)');
-ylabel('Power');
-axis([t0(1) t0(end) 0 (floor(max(power) / A^4) + 3) * A^4]);
-set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, (floor(max(power) / A^4) + 3) * A^4, 5), 'fontsize', 13);
-set(gca, 'yticklabel', {'0', '', [num2str((floor(max(power) / A^4) + 3) / 2 ),'A^4'], '', [num2str((floor(max(power) / A^4) + 3)),'A^4']});
-
-% % >>> 分析瞬时功率 <<<
-% % 理想信号a
+% % >>> 分析8微秒平均功率 <<<
+% % 理想信号a 
 % K = 8 * fs;
-% power = a .^ 2;
+% power = zeros(1, length(a) - K + 1);
+% for m = 1 : length(a) - K + 1
+%     power(m) = 1 / K * sum( a(m : m + K - 1) .^ 2 );
+% end
 % 
 % figure;
 % plot(t0(1 : length(power)), power, 'color', 'k', 'linewidth', 1);
-% title('a的瞬时功率');
+% title('a的8\mus平均功率');
 % xlabel('Time(\mus)');
 % ylabel('Power');
 % axis([t0(1) t0(end) 0 A^2]);
@@ -223,11 +172,14 @@ set(gca, 'yticklabel', {'0', '', [num2str((floor(max(power) / A^4) + 3) / 2 ),'A
 % % 加噪信号|y|
 % K = 8 * fs;
 % y_abs = abs(y);
-% power = y_abs .^ 2;
+% power = zeros(1, length(y_abs) - K + 1);
+% for m = 1 : length(y_abs) - K + 1
+%     power(m) = 1 / K * sum( y_abs(m : m + K - 1) .^ 2 );
+% end
 % 
 % figure;
 % plot(t0(1 : length(power)), power, 'color', 'k', 'linewidth', 1);
-% title('|y|的瞬时功率');
+% title('|y|的8\mus平均功率');
 % xlabel('Time(\mus)');
 % ylabel('Power');
 % axis([t0(1) t0(end) 0 (floor(max(power) / A^2) + 3) * A^2]);
@@ -238,14 +190,62 @@ set(gca, 'yticklabel', {'0', '', [num2str((floor(max(power) / A^4) + 3) / 2 ),'A
 % % 自相关累积后的加噪信号的|y_cumu|
 % K = 8 * fs;
 % y_cumu_abs = abs(y_cumu);
-% power = y_cumu_abs .^ 2;
+% power = zeros(1, length(y_cumu_abs) - K + 1);
+% for m = 1 : length(y_cumu_abs) - K + 1
+%     power(m) = 1 / K * sum( y_cumu_abs(m : m + K - 1) .^ 2 );
+% end
 % 
 % figure;
 % plot(t0(1 : length(power)), power, 'color', 'k', 'linewidth', 1);
-% title('|y_{cumu}|的瞬时功率');
+% title('|y_{cumu}|的8\mus平均功率');
 % xlabel('Time(\mus)');
 % ylabel('Power');
 % axis([t0(1) t0(end) 0 (floor(max(power) / A^4) + 3) * A^4]);
 % set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
 % set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, (floor(max(power) / A^4) + 3) * A^4, 5), 'fontsize', 13);
 % set(gca, 'yticklabel', {'0', '', [num2str((floor(max(power) / A^4) + 3) / 2 ),'A^4'], '', [num2str((floor(max(power) / A^4) + 3)),'A^4']});
+% 
+% % % >>> 分析瞬时功率 <<<
+% % % 理想信号a
+% % K = 8 * fs;
+% % power = a .^ 2;
+% % 
+% % figure;
+% % plot(t0(1 : length(power)), power, 'color', 'k', 'linewidth', 1);
+% % title('a的瞬时功率');
+% % xlabel('Time(\mus)');
+% % ylabel('Power');
+% % axis([t0(1) t0(end) 0 A^2]);
+% % set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+% % set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, A^2, 5), 'fontsize', 13);
+% % set(gca, 'yticklabel', {'0', '', 'A^2 / 2', '', 'A^2'});
+% % 
+% % % 加噪信号|y|
+% % K = 8 * fs;
+% % y_abs = abs(y);
+% % power = y_abs .^ 2;
+% % 
+% % figure;
+% % plot(t0(1 : length(power)), power, 'color', 'k', 'linewidth', 1);
+% % title('|y|的瞬时功率');
+% % xlabel('Time(\mus)');
+% % ylabel('Power');
+% % axis([t0(1) t0(end) 0 (floor(max(power) / A^2) + 3) * A^2]);
+% % set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+% % set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, (floor(max(power) / A^2) + 3) * A^2, 5), 'fontsize', 13);
+% % set(gca, 'yticklabel', {'0', '', [num2str((floor(max(power) / A^2) + 3) / 2 ),'A^2'], '', [num2str((floor(max(power) / A^2) + 3)),'A^2']});
+% % 
+% % % 自相关累积后的加噪信号的|y_cumu|
+% % K = 8 * fs;
+% % y_cumu_abs = abs(y_cumu);
+% % power = y_cumu_abs .^ 2;
+% % 
+% % figure;
+% % plot(t0(1 : length(power)), power, 'color', 'k', 'linewidth', 1);
+% % title('|y_{cumu}|的瞬时功率');
+% % xlabel('Time(\mus)');
+% % ylabel('Power');
+% % axis([t0(1) t0(end) 0 (floor(max(power) / A^4) + 3) * A^4]);
+% % set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
+% % set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, (floor(max(power) / A^4) + 3) * A^4, 5), 'fontsize', 13);
+% % set(gca, 'yticklabel', {'0', '', [num2str((floor(max(power) / A^4) + 3) / 2 ),'A^4'], '', [num2str((floor(max(power) / A^4) + 3)),'A^4']});

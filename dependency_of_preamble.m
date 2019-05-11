@@ -44,9 +44,10 @@ xlabel('Time');
 ylabel('Amplitude');
 axis([1 length(r) min(r) max(r)]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(min(r), max(r), 6), 'fontsize', 13);
-grid off;
+set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(0, max(r), 6), 'fontsize', 13);
+grid on;
 set(gca, 'gridlinestyle', ':', 'gridcolor', 'k', 'gridalpha', 0.5);
+set(gca, 'yticklabel', {'0', '', '', '', '', [num2str(max(r) / 1.0), 'A'] });
 
 % >>> 报头的自相关特征（添加噪声） <<<
 sigPower = sum(abs(p) .^ 2) / length(p);
@@ -64,8 +65,9 @@ xlabel('Time');
 ylabel('Amplitude');
 axis([1 length(r) min(r) max(r)]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(min(r), max(r), 6), 'fontsize', 13);
-grid off;
+set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(0, max(r), 6), 'fontsize', 13);
+set(gca, 'yticklabel', {'0', '', '', '', '', [num2str(max(r) / 1.0), 'A'] });
+grid on;
 set(gca, 'gridlinestyle', ':', 'gridcolor', 'k', 'gridalpha', 0.5);
 
 % >>> 报头的自相关特征（添加噪声 + 自相关累积） <<<
@@ -83,8 +85,9 @@ xlabel('Time');
 ylabel('Amplitude');
 axis([1 length(r) min(r) max(r)]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(min(r), max(r), 6), 'fontsize', 13);
-grid off;
+set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(0, max(r), 6), 'fontsize', 13);
+set(gca, 'yticklabel', {'0', '', '', '', '', [num2str(max(r) / 1.0), 'A'] });
+grid on;
 set(gca, 'gridlinestyle', ':', 'gridcolor', 'k', 'gridalpha', 0.5);
 
 % >>> 互相关检测 <<<
@@ -99,15 +102,16 @@ for i = 1 : s - m + 1
 end
 
 figure;
-plot(1 : length(R), R, 'color', 'k', 'linewidth', 1.5);
+plot(t0(1 : length(R)), R, 'color', 'k', 'linewidth', 1.5);
 title('互相关检测');
-xlabel('Time');
+xlabel('Time(\mus)');
 ylabel('Amplitude');
-axis([1 length(R) min(R) max(R)]);
+axis([t0(1) t0(length(R)) min(R) max(R)]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(min(R), max(R), 6), 'fontsize', 13);
-grid off;
+set(gca, 'box', 'off', 'xtick', 0 : 8 : 120, 'ytick', linspace(0, max(R), 6), 'fontsize', 13);
+grid on;
 set(gca, 'gridlinestyle', ':', 'gridcolor', 'k', 'gridalpha', 0.5);
+set(gca, 'yticklabel', {'0', '', '', '', '', [num2str(max(R) / 1.0), 'A'] });
 
 % >>> 倍数检测 <<<
 for i = 1 : s - m + 1
@@ -139,15 +143,16 @@ for i = 1 : s - m + 1
 end
 
 figure;
-plot(1 : length(R), R, 'color', 'k', 'linewidth', 1.5);
+plot(t0(1 : length(R)), R, 'color', 'k', 'linewidth', 1.5);
 title('互相关检测（添加噪声）');
-xlabel('Time');
+xlabel('Time(\mus)');
 ylabel('Amplitude');
-axis([1 length(R) min(R) max(R)]);
+axis([t0(1) t0(length(R)) min(R) max(R)]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', [], 'ytick', linspace(min(R), max(R), 6), 'fontsize', 13);
-grid off;
+set(gca, 'box', 'off', 'xtick', 0 : 8 : 120, 'ytick', linspace(min(R), max(R), 6), 'fontsize', 13);
+grid on;
 set(gca, 'gridlinestyle', ':', 'gridcolor', 'k', 'gridalpha', 0.5);
+set(gca, 'yticklabel', {[num2str(min(R) / 1.0), 'A'], '', '', '', '', [num2str(max(R) / 1.0), 'A'] });
 
 % >>> 倍数检测（添加噪声） <<<
 

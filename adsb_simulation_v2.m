@@ -30,13 +30,14 @@ scrsz = get(0,'ScreenSize'); % 获取屏幕尺寸
 h = rect(t0) + rect(t0 - 1) + rect(t0 - 3.5) + rect(t0 - 4.5);
 
 figure;
-plot(t0, h, 'color', 'b', 'linewidth', 1.5);
+plot(t0, h, 'color', 'k', 'linewidth', 1.5);
 title('报头段');
 xlabel('Time(\mus)');
 ylabel('Amplitude');
 axis([t0(1) t0(end) -2 2]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', 0:4:120, 'ytick', -1:0.5:1, 'fontsize', 13);
+set(gca, 'box', 'off', 'xtick', 0:4:120, 'ytick', linspace(-1,1,5), 'fontsize', 13);
+set(gca, 'yticklabel', {'-A', '', '0', '', 'A'});
 
 % >>> 构建数据报文 <<<
 K = 112;
@@ -47,13 +48,14 @@ for k = 1 : 112
 end
 
 figure;
-plot(t0, d, 'color', 'r', 'linewidth', 1.5);
+plot(t0, d, 'color', 'k', 'linewidth', 1.5);
 title('数据报文段');
 xlabel('Time(\mus)');
 ylabel('Amplitude');
 axis([t0(1) t0(end) -2 2]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', 0:4:120, 'ytick', -1:0.5:1, 'fontsize', 13);
+set(gca, 'box', 'off', 'xtick', 0:4:120, 'ytick', linspace(-1,1,5), 'fontsize', 13);
+set(gca, 'yticklabel', {'-A', '', '0', '', 'A'});
 
 % >>> 合成基带信号 <<<
 a = h + d;
@@ -65,7 +67,8 @@ xlabel('Time(\mus)');
 ylabel('Amplitude');
 axis([t0(1) t0(end) -2 2]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', 0:4:120, 'ytick', -1:0.5:1, 'fontsize', 13);
+set(gca, 'box', 'off', 'xtick', 0:4:120, 'ytick', linspace(-1,1,5), 'fontsize', 13);
+set(gca, 'yticklabel', {'-A', '', '0', '', 'A'});
 
 % % 基带信号频谱
 % N = length(a);

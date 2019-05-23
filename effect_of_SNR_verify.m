@@ -1,7 +1,7 @@
 clear, clc;
 close all;
 
-fs = 66; % MHz 采样频率，应大于 2 * 1090
+fs = 22; % MHz 采样频率，应大于 2 * 1090
 Tb = 1; % us
 t0 = -80 : 1/fs : 200; % 时间序列，其中 0-120 为 ADS-B 报文
 b = @(t, d)(d - 0.5)*(rect(t) - rect(t - Tb / 2.0));

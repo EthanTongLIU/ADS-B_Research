@@ -50,38 +50,31 @@ set(gca, 'yticklabel', {'-A', '0', 'A', '2A'});
 sigPower = 29 * A^2 / 60;
 SNR = 1; % 比例形式
 noisePower = sigPower / SNR;
-noise = sqrt(noisePower) .* randn(1, length(a));
+noise = raylrnd(sqrt(noisePower), 1, length(a));
 y = a + noise;
 
-y(y<0)=0; % 去除负值
-
 figure;
-stem(t0, y, 'color', 'k', 'linewidth', 1);
-hold on;
-plot(t0, abs(y), 'color', 'r', 'linewidth', 1);
-legend('y', '|y|');
-title(['加噪基带信号y和|y|（信噪比SNR=',num2str(SNR),'）']);
+plot(t0, y, 'color', 'k', 'linewidth', 1);
+title(['加噪基带信号y（信噪比SNR=',num2str(SNR),'）']);
 xlabel('Time(\mus)');
 ylabel('Amplitude');
 axis([t0(1) t0(end) min(y) max(y)]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
-set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(-A, 2 * A, 4), 'fontsize', 13);
+set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(-A, 2 * A, 4), 'fontsize', 13); 
 set(gca, 'yticklabel', {'-A', '0', 'A', '2A'});
 
+%%
 % >>> 自相关累积 <<<
 % M 点自相关累积
-M = 13;
+M = 4;
 y_cumu = zeros(1, length(y) - M);
 for m = 1 : length(y) - M
     y_cumu(m) = 1 / M * dot(y(m + 1 : m + M), y(m : m + M - 1));
 end
 
 figure;
-stem(t0(1 : length(y_cumu)), y_cumu, 'color', 'k', 'linewidth', 1);
-hold on;
-plot(t0(1 : length(y_cumu)), abs(y_cumu), 'color', 'r', 'linewidth', 1);
-legend('y_{cumu}', '|y_{cumu}|');
-title('y的自相关累积y_{cumu}及|y_{cumu}|');
+plot(t0(1 : length(y_cumu)), y_cumu, 'color', 'r', 'linewidth', 1);
+title('y的自相关累积y_{cumu}');
 xlabel('Time(\mus)');
 ylabel('Amplitude');
 axis([t0(1) t0(end) min(y_cumu) max(y_cumu)]);
@@ -89,6 +82,7 @@ set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
 set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(-A^2, 4 * A^2, 6), 'fontsize', 13);
 set(gca, 'yticklabel', {'-A^2', '0', 'A^2', '2A^2', '3A^2', '4A^2'});
 
+%%
 % >>> 分析lambda <<<
 % 标准报头检测模板
 n_half_us = fs / 2;
@@ -113,40 +107,38 @@ axis([t0(1) t0(end) 0 1]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
 set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, 1, 5), 'fontsize', 13);
 
-% 加噪信号|y| lambda
+% 加噪信号y lambda
 K = 8 * fs;
-y_abs = abs(y);
-R = zeros(1, length(y_abs) - K + 1);
-mu = zeros(1, length(y_abs) - K + 1);
-for m = 1 : length(y_abs) - K + 1
-    mu(m) = mean(y_abs(m : m + K - 1));
-    R(m) = 1 / K * preambleTemp * y_abs(m : m + K - 1)';
+R = zeros(1, length(y) - K + 1);
+mu = zeros(1, length(y) - K + 1);
+for m = 1 : length(y) - K + 1
+    mu(m) = mean(y(m : m + K - 1));
+    R(m) = 1 / K * preambleTemp * y(m : m + K - 1)';
 end
 lambda = R ./ mu;
 
 figure;
 plot(t0(1 : length(lambda)), lambda, 'color', 'k', 'linewidth', 1);
-title('|y|的\lambda');
+title('y的\lambda');
 xlabel('Time(\mus)');
 ylabel('\lambda');
 axis([t0(1) t0(end) 0 1]);
 set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
 set(gca, 'box', 'off', 'xtick', linspace(0, 120, 16), 'ytick', linspace(0, 1, 5), 'fontsize', 13);
 
-% 自相关累积后的加噪信号的|y_cumu| lambda
+% 自相关累积后的加噪信号的y_cumu lambda
 K = 8 * fs;
-y_cumu_abs = abs(y_cumu);
-R = zeros(1, length(y_cumu_abs) - K + 1);
-mu = zeros(1, length(y_cumu_abs) - K + 1);
-for m = 1 : length(y_cumu_abs) - K + 1
-    mu(m) = mean(y_cumu_abs(m : m + K - 1));
-    R(m) = 1 / K * preambleTemp * y_cumu_abs(m : m + K - 1)';
+R = zeros(1, length(y_cumu) - K + 1);
+mu = zeros(1, length(y_cumu) - K + 1);
+for m = 1 : length(y_cumu) - K + 1
+    mu(m) = mean(y_cumu(m : m + K - 1));
+    R(m) = 1 / K * preambleTemp * y_cumu(m : m + K - 1)';
 end
 lambda = R ./ mu;
 
 figure;
 plot(t0(1 : length(lambda)), lambda, 'color', 'k', 'linewidth', 1);
-title('|y_{cumu}|的\lambda');
+title('y_{cumu}的\lambda');
 xlabel('Time(\mus)');
 ylabel('\lambda');
 axis([t0(1) t0(end) 0 1]);

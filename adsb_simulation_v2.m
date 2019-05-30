@@ -27,7 +27,9 @@ scrsz = get(0,'ScreenSize'); % 获取屏幕尺寸
 % set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
 
 % >>> 构建报头 <<<
-h = rect(t0) + rect(t0 - 1) + rect(t0 - 3.5) + rect(t0 - 4.5);
+% h = rect(t0) + rect(t0 - 1) + rect(t0 - 3.5) + rect(t0 - 4.5);
+
+h = b(t0, 1) + b(t0 - 1, 1) + b(t0 - 3, 0) + b(t0 - 4, 0);
 
 figure;
 plot(t0, h, 'color', 'k', 'linewidth', 1.5);

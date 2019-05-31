@@ -97,29 +97,31 @@ for j = 1 : 2 : 15
 %     plot(xb, log10(P), '-s', 'linewidth', 2, 'color', 'k');
 %     text(160, log10(P(17)) - 1, ['\lambda = ', num2str(K)]);
     if j == 1
-        plot(xb, log10(P), '-+', 'linewidth' , 1.5, 'color', 'k', 'markersize', 12);
+        plot(xb, log10(P), '-+', 'linewidth' , 1.5, 'color', 'k', 'markersize', 13);
     elseif j == 3
-        plot(xb, log10(P), '-o', 'linewidth' , 1.5, 'color', 'k', 'markersize', 12);
+        plot(xb, log10(P), '-x', 'linewidth' , 1.5, 'color', 'k', 'markersize', 13);
     elseif j == 5
-        plot(xb, log10(P), '-*', 'linewidth' , 1.5, 'color', 'k', 'markersize', 12);
+        plot(xb, log10(P), '-*', 'linewidth' , 1.5, 'color', 'k', 'markersize', 13);
     elseif j == 7
-        plot(xb, log10(P), '-x', 'linewidth' , 1.5, 'color', 'k', 'markersize', 12);
+        plot(xb, log10(P), '-o', 'linewidth' , 1.5, 'color', 'k', 'markersize', 13);
     elseif j == 9
-        plot(xb, log10(P), '-s', 'linewidth' , 1.5, 'color', 'k', 'markersize', 12);
+        plot(xb, log10(P), '-s', 'linewidth' , 1.5, 'color', 'k', 'markersize', 13);
     elseif j == 11
-        plot(xb, log10(P), '-d', 'linewidth' , 1.5, 'color', 'k', 'markersize', 12);
+        plot(xb, log10(P), '-d', 'linewidth' , 1.5, 'color', 'k', 'markersize', 13);
     elseif j == 13
-        plot(xb, log10(P), '-^', 'linewidth' , 1.5, 'color', 'k', 'markersize', 12);
+        plot(xb, log10(P), '-^', 'linewidth' , 1.5, 'color', 'k', 'markersize', 13);
     elseif j == 15
-        plot(xb, log10(P), '-v', 'linewidth' , 1.5, 'color', 'k', 'markersize', 12);
+        plot(xb, log10(P), '-v', 'linewidth' , 1.5, 'color', 'k', 'markersize', 13);
     end
 end
 axis([xb(1) xb(end) -70 0]);
-set(gca, 'box', 'off', 'xtick', linspace(10, 200, 20), 'fontsize', 18);
+set(gca, 'box', 'off', 'xtick', linspace(10, 200, 20), 'fontsize', 22);
 leg = legend(['\lambda =', num2str(0.25)], ['\lambda =', num2str(0.35)], ['\lambda =', num2str(0.45)], ['\lambda =', num2str(0.55)], ['\lambda =', num2str(0.65)], ['\lambda =', num2str(0.75)], ['\lambda =', num2str(0.85)], ['\lambda =', num2str(0.95)]);
-set(leg, 'fontsize', 20);
-xlabel('单元个数 N', 'fontsize', 20, 'fontweight', 'bold');
-ylabel('虚警概率 log(P)', 'fontsize', 20, 'fontweight', 'bold');
+set(leg, 'fontsize', 25);
+xlabel('滑窗内采样点数 N', 'fontsize', 30, 'fontweight', 'bold');
+ylabel('对数虚警概率 logP', 'fontsize', 30, 'fontweight', 'bold');
+grid on;
+set(gca, 'gridlinestyle', '--', 'gridalpha', 0.8);
 
 %% 单 R 恒虚警
 figure;

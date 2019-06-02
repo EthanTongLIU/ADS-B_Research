@@ -1,7 +1,7 @@
 clear, clc;
 close all;
 
-fs = 22; % MHz 采样频率，应大于 2 * 1090
+fs = 44; % MHz 采样频率，应大于 2 * 1090
 Tb = 1; % us
 t0 = -80 : 1/fs : 200; % 时间序列，其中 0-120 为 ADS-B 报文
 b = @(t, d)d * rect(t) + (1 - d) * rect(t - Tb / 2.0);
@@ -78,8 +78,8 @@ grid on;
 set(gca, 'gridlinestyle', '--', 'gridalpha', 0.8);
 
 axis([-5 5 0 100]);
-set(gca, 'box', 'on', 'xtick', -5 : 1 : 5, 'ytick', linspace(0, 100, 11), 'fontsize', 22);
+set(gca, 'box', 'on', 'xtick', -5 : 1 : 5, 'ytick', linspace(0, 100, 11), 'fontsize', 28);
 
-xlabel('信噪比（dB）', 'fontsize', 30, 'fontweight', 'bold');
-ylabel('检测率（%）', 'fontsize', 30, 'fontweight', 'bold');
+xlabel('信噪比/dB', 'fontsize', 33, 'fontweight', 'bold');
+ylabel('检测率/%', 'fontsize', 33, 'fontweight', 'bold');
 lambda = R ./ mu;

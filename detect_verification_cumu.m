@@ -34,7 +34,7 @@ threshold = linspace(0.4, thr_num);
 
 % 小循环
 snr_num = 11; 
-SNRdB = linspace(-5, 5, snr_num); % dB 形式，步长 1 dB 
+SNRdB = linspace(-10, 0, snr_num); % dB 形式，步长 1 dB 
 SNR = power(10, SNRdB / 10.0); % 比例形式
 
 pass = zeros(thr_num, snr_num);
@@ -65,7 +65,7 @@ for thr_i = 1 : thr_num
             tags = find(lambda > threshold(thr_i));
 
             % 统计检测率
-            if find(tags == 1761)
+            if find(tags == 1759)
                 pass(thr_i, snr_i) = pass(thr_i, snr_i) + 1;
             end
 
@@ -84,9 +84,9 @@ end
 grid on;
 set(gca, 'gridlinestyle', '--', 'gridalpha', 0.8);
 
-axis([-5 5 0 100]);
-set(gca, 'box', 'on', 'xtick', -5 : 1 : 5, 'ytick', linspace(0, 100, 11), 'fontsize', 22);
+axis([-10 0 0 100]);
+set(gca, 'box', 'on', 'xtick', -10 : 1 : 0, 'ytick', linspace(0, 100, 11), 'fontsize', 28);
 
-xlabel('信噪比（dB）', 'fontsize', 30, 'fontweight', 'bold');
-ylabel('检测率（%）', 'fontsize', 30, 'fontweight', 'bold');
+xlabel('信噪比/dB', 'fontsize', 33, 'fontweight', 'bold');
+ylabel('检测率/%', 'fontsize', 33, 'fontweight', 'bold');
 lambda = R ./ mu;

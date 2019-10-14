@@ -158,7 +158,7 @@ N = length(s);
 % 4. 加入噪声
 
 rfSigPower = sum(abs(s) .^ 2) / N;
-SNR = 0.2; % 比例
+SNR = 3; % 比例
 noisePower = rfSigPower / SNR;
 noise = sqrt(noisePower) * randn(1, N);
 
@@ -202,7 +202,7 @@ set(gcf, 'position', [0, scrsz(4)/1.7, scrsz(3), scrsz(4)/3]);
 figure;
 s = ifft(S, NFFT) * N;
 s = s(1 : N);
-plot(t0, abs(s), 'color', 'k');
+plot(t0, s, 'color', 'k');
 xlabel('Time(\mus)');
 ylabel('Amplitude');
 axis([t0(1) t0(end) -2 2]);
@@ -212,7 +212,7 @@ set(gca, 'box', 'off', 'xtick', 0:4:120, 'ytick', -1:0.5:1, 'fontsize', 13);
 %%
 figure;
 s0 = s(1 : 180 : end);
-stem(t0(1 : 180 : end), abs(s0), 'color', 'k');
+plot(t0(1 : 180 : end), abs(s0), 'color', 'k');
 xlabel('Time(\mus)');
 ylabel('Amplitude');
 axis([t0(1) t0(end) -2 2]);

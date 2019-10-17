@@ -1,22 +1,25 @@
-%% 苏老师修改后版本的虚警概率与检测门限的关系
+%% 虚警概率与检测门限的关系
 
 format long;
 clear, clc;
 close all;
 
 figure;
-hold on;
-xlabel('Threshold \beta_{1}');
-ylabel('Pfa');
-
 % 理论虚警率
 
-for r1 = 10 : 20 : 80 % 采样点数
+r1 = 44; % 选定采样率为 22M
 
-Pfa = linspace(10e-1, 10e-7, 1000);
-beta1 = sqrt(r1*(4-pi)/pi) * norminv(1-Pfa, 0, 1) + r1;
-plot(beta1, Pfa, 'color', 'b');
+beta1 = linspace(35, 65, 1000);
+Pfa = 1 - normcdf((beta1 - r1)/sqrt(r1*(4-pi)/pi));
 
-end
+% Pfa = linspace(10e-1, 10e-10, 1000);
+% beta1 = sqrt(r1*(4-pi)/pi) * norminv(1-Pfa, 0, 1) + r1;
+
+semilogy(beta1, Pfa, 'color', 'b');
+
+xlabel('$\beta_{1}$', 'interpreter', 'latex');
+ylabel('$P_{fa}$', 'interpreter', 'latex');
+
+grid on;
 
 % 仿真虚警率

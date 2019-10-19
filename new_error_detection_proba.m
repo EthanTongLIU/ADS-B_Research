@@ -16,7 +16,7 @@ r2 = r0 - r1;
 figure;
 hold on;
 
-beta1 = linspace(0.1, 100, 100);
+beta1 = linspace(0.1, 110, 100);
 
 SNR = -10; % 信噪比，dB形式
 SNR = power(10, SNR / 10); % 信噪比，原始比例形式
@@ -54,8 +54,8 @@ beta2 = sqrt(2/pi) * r1 / r0 * sqrt(SNR) + r2 / r0;
 Pe = 1 - normcdf(beta1 * beta2 * sqrt(pi/(2*r1)) - sqrt(r1) * sqrt(SNR));
 plot(beta1, Pe, '--', 'color', [60/255 179/255 113/255], 'linewidth', 1.3);
 
-leg = legend(['-10', ' dB'], ['-3', ' dB'], ['0', ' dB'], ['1.96', 'dB'], ['3', ' dB'], ['10', ' dB']);
-title(leg, 'SNR');
+leg = legend('  -10 (理论值)', '    -3 (理论值)', '     0 (理论值)', '1.96 (理论值)', '     3 (理论值)', '   10 (理论值)');
+title(leg, '$SNR/dB$', 'interpreter', 'latex', 'fontname', 'fixedwidth');
 xlabel('$\beta_{1}$', 'interpreter', 'latex');
 ylabel('$P_{e}$', 'interpreter', 'latex');
 grid on;
@@ -96,7 +96,7 @@ plot(10*log10(SNR), Pe, '--', 'color', [60/255 179/255 113/255], 'linewidth', 1.
 
 plot([10*log10(pi/2), 10*log10(pi/2)], [0, 1], '-..', 'color', 'k'); % 临界信噪比
 
-leg = legend('20', '30', '40', '50', '60');
+leg = legend('20 (理论值)', '30 (理论值)', '40 (理论值)', '50 (理论值)', '60 (理论值)');
 title(leg, '\beta_{1}');
 set(gca, 'xtick', [-10 -5 0 1.96 5 10 15], 'xticklabel', {'-10', '-5', '0', '1.96', '5', '10', '15'});
 xlabel('$SNR / dB$', 'interpreter', 'latex');

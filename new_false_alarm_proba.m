@@ -15,7 +15,9 @@ Pfa = 1 - normcdf((beta1 - r1)/sqrt(r1*(4-pi)/pi));
 % Pfa = linspace(10e-1, 10e-10, 1000);
 % beta1 = sqrt(r1*(4-pi)/pi) * norminv(1-Pfa, 0, 1) + r1;
 
-semilogy(beta1, Pfa, 'color', 'b');
+semilogy(beta1, Pfa, 'color', 'b', 'linewidth', 1.3);
+
+legend('¿Ì¬€÷µ');
 
 xlabel('$\beta_{1}$', 'interpreter', 'latex');
 ylabel('$P_{fa}$', 'interpreter', 'latex');

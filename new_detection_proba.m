@@ -2,6 +2,7 @@
 
 format long;
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 理论检测概率
 
 %% 1. 固定 r1，beta1 作为横轴
@@ -143,64 +144,6 @@ set(gca, 'xtick', [-9 -8 -7 -6 -5 -4 -3], 'xticklabel', {'1e-9', '1e-8', '1e-7',
 
 grid on;
 
-
-% 仿真检测概率
-
-%% 1. pd versus beta1 at different SNR
-
-format long;
-
-fs = 22; % 采样率，单位：MHz
-r1 = 44;
-Tb = 1; % 码元宽度，单位：us
-t0 = -80 : 1/fs : 200; % 时间序列，单位：us
-b = @(t, d)d * rect(t) + (1-d) * rect(t-Tb/2.0); % 脉冲位置调制码元
-
-% 报头
-p = b(t0, 1) + b(t0 - 1, 1) + b(t0 - 3, 0) + b(t0 - 4, 0);
-
-% 基带信号
-m = p;
-
-% 本地报头
-n_half_us = fs / 2;
-pd = [ones(1, n_half_us) zeros(1, n_half_us) ones(1, n_half_us) ...
-    zeros(1, 4 * n_half_us) ones(1, n_half_us) zeros(1, n_half_us) ones(1, n_half_us) zeros(1, 6 * n_half_us)];
-
-% 接收信号
-alpha = 2; % 接收信号电平
-
-M = 8 * fs; % 8us 所对应的采样点数
-
-% 数据存储矩阵
-sc = zeros(1, length(sd) - M + 1);
-me = zeros(1, length(sd) - M + 1);
-cfardata = zeros(1, length(sd) - M + 1);
-
-%% 1. SNR = 10
-SNR = 10; % 信噪比，原始比例形式
-sigma = sqrt(alpha^2 / SNR); % 噪声标准差
-e = normrnd(0, sigma, 1, length(p));
-sd = alpha * m + e;
-
-Pfa = 1e-6; % 虚警概率
-beta1 = sqrt(r1*(4-pi)/pi) * norminv(1-Pfa) + r1; % 检测门限
-
-fndnum = 0;
-for m = 1 : length(sd) - M + 1
-    me(m) = mean(abs([sd(m+11:m+11+11-1), sd(m+33:m+33+11-1), sd(m+77:m+77+11-1), sd(m+99:m+99+11-1)])); % 噪声包络均值
-    sc(m) = abs(pd * sd(m : m+M-1)');
-    if (sc(m) / me(m) > beta1)
-        cfardata(m) = sc(m) / me(m);
-        fndnum = fndnum + 1;
-        if m == 1761
-            break;
-        end
-    end
-end
-
-plot(cfardata);
-title(num2str(fndnum));
 
 
 

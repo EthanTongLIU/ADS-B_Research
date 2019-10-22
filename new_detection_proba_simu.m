@@ -40,7 +40,7 @@ beta1 = sqrt(r1*(4-pi)/pi) * norminv(1-Pfa) + r1; % 检测门限
 passtime = 0; % 检测到报头的次数记录
 for cycletime = 1 : 10000 % 重复进行蒙特卡洛仿真实验
 
-    e = normrnd(0, sigma, 1, length(p)); % 重新构造噪声
+    e = normrnd(0, sigma, 1, length(p)); % 每次重新构造噪声
     sd = alpha * m + e; 
 
     % 数据存储矩阵

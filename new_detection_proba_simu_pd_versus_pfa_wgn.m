@@ -1,5 +1,6 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % 仿真检测概率
+% 噪声模型直接采用瑞利分布
 
 % 1. pd versus beta1 at different SNR
 
@@ -30,19 +31,24 @@ alpha = 2; % 接收信号电平
 M = 8 * fs; % 8us 所对应的采样点数
 
 % -----> 外层循环(信噪比)
-SNR = 5; % 信噪比，原始比例形式(分别取10, 6.5, 6, 5.5, 5)
+SNR = 10; % 信噪比，dB形式(分别取10, 6.5, 6, 5.5, 5)
+SNR = power(10, SNR / 10); % 信噪比，原始比例形式
 sigma = sqrt(alpha^2 / SNR); % 噪声标准差
 
 % -----> 内层循环(虚警概率)
-Pfa = 1e-9; % 虚警概率(分别取虚警概率1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9)
+Pfa = 1e-4; % 虚警概率(分别取虚警概率1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9)
 beta1 = sqrt(r1*(4-pi)/pi) * norminv(1-Pfa) + r1; % 检测门限
 
 passtime = 0; % 检测到报头的次数记录
-for cycletime = 1 : 10000 % 重复进行蒙特卡洛仿真实验
-
+for cycletime = 1 : 20000 % 重复进行蒙特卡洛仿真实验
+    
     e = normrnd(0, sigma, 1, length(p)); % 每次重新构造噪声
+    % e = raylrnd(sigma, 1, length(p)); % 噪声包络
+    % 模拟时刻上的不相关性
+    % coef = (fix(rand(1,length(e))*2)-0.5)*2;
+    % e = coef.*e;
     sd = alpha * m + e; 
-
+    
     % 数据存储矩阵
     sc = zeros(1, length(p) - M + 1);
     me = zeros(1, length(p) - M + 1);
@@ -52,7 +58,7 @@ for cycletime = 1 : 10000 % 重复进行蒙特卡洛仿真实验
   % for i = 1 : length(sd) - M + 1
     for i = 1760 : 1761
         me(i) = mean(abs([sd(i+11:i+11+11-1), sd(i+33:i+33+11-1), sd(i+77:i+77+11-1), sd(i+99:i+99+11-1)])); % 噪声包络均值
-        sc(i) = abs(pd * sd(i : i+M-1)'); % 滑动求和结果
+        sc(i) = (pd * sd(i : i+M-1)'); % 滑动求和结果
         if (sc(i) / me(i) > beta1)
             % cfardata(i) = sc(i) / me(i);
             % fndnum = fndnum + 1;

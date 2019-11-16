@@ -34,7 +34,7 @@ SNR = power(10, SNR / 10); % 信噪比，原始比例形式
 sigma = sqrt(alpha^2 / SNR); % 噪声标准差
 
 % -----> 内层循环(beta1)
-beta1 = 180; % beta1(分别取20 40 60 80 100 120 140 160
+beta1 = 50; % beta1(分别取20 40 60 80 100 120 140 160
 
 passtime = 0; % 检测到报头的次数记录
 for cycletime = 1 : 1 % 重复进行蒙特卡洛仿真实验
@@ -97,12 +97,6 @@ plot(me);title('me');
 subplot(414);
 plot(cfardata);title('cfardata');
 [maxcfardata, tag] = max(cfardata)
-
-% figure;
-% plot(sd(1761:end));
-% figure;
-% i = 1838;
-% stem([sd(i+11:i+11+11-1), sd(i+33:i+33+44-1), sd(i+88:i+88+11-1), sd(i+110:i+110+66-1)]);
 
 % % 多次统计检测率
 % passtime

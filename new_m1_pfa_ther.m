@@ -17,7 +17,7 @@ Pfa = 1 - normcdf((beta1 - r1)/sqrt(r1*(4-pi)/pi));
 
 semilogy(beta1, Pfa, 'color', 'b', 'linewidth', 1.3);
 
-legend('理论值');
+% legend('理论值');
 
 xlabel('$\beta_{1}$', 'interpreter', 'latex');
 ylabel('$P_{fa}$', 'interpreter', 'latex');

@@ -13,7 +13,7 @@ t0 = -80 : 1/fs : 200; % 时间序列，单位：us
 b = @(t, d)d * rect(t) + (1-d) * rect(t-Tb/2.0); % 脉冲位置调制码元
 
 % 报头
-p = b(t0, 1) + b(t0 - 1, 1) + b(t0 - 3, 0) + b(t0 - 4, 0);
+p = b(t0, 1) + b(t0 - 1, 1) + b(t0 - 2, 1) + b(t0 - 3, 0) + b(t0 - 4, 0) + b(t0 - 5, 1) + b(t0 - 6, 1) + b(t0 - 7, 1);
 
 % 基带信号
 m = p;
@@ -29,22 +29,22 @@ alpha = 2; % 接收信号电平
 M = 8 * fs; % 8us 所对应的采样点数
 
 % -----> 外层循环(信噪比)
-SNR = 11; % 信噪比，dB形式(分别取10, 3, 0, -3, -10)
+SNR = -5; % 信噪比，dB形式(分别取10, 3, 0, -3, -10)
 SNR = power(10, SNR / 10); % 信噪比，原始比例形式
 sigma = sqrt(alpha^2 / SNR); % 噪声标准差
 
 % -----> 内层循环(beta1)
-beta1 = 140; % beta1(分别取20 40 60 80 100 120 140 160
+beta1 = 60; % beta1(分别取20 40 60 80 100 120 140 160
 
 passtime = 0; % 检测到报头的次数记录
 for cycletime = 1 : 20000 % 重复进行蒙特卡洛仿真实验
     
     % 以下两种噪声定义形式相同，都采用纯高斯白噪声
     % e = normrnd(0, sigma, 1, length(p));
-    % e = wgn(1, length(p), sigma^2, 'linear');
+    e = wgn(1, length(p), sigma^2, 'linear');
     
     % 以下噪声产生一个瑞利分布的包络
-    e = raylrnd(sigma, 1, length(p));
+    % e = raylrnd(sigma, 1, length(p));
     
     % 以下噪声产生一个瑞利分布的包络，相邻取反，违背了时刻不相关性的原则
     % e = raylrnd(sigma, 1, length(p));

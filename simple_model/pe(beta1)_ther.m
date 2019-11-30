@@ -16,29 +16,25 @@ beta1 = linspace(10, 100, 500); % 检测门限
 
 SNR = 0; % 信噪比，dB形式
 SNR = power(10, SNR / 10); % 信噪比，原始比例形式
-xi = floor((1-2*normcdf(-sqrt(SNR)))*r1)
-beta2 = sqrt(pi/2)*xi/r0*sqrt(SNR)+r2/r0;
+beta2 = ( exp(-SNR/2) + sqrt(SNR)*sqrt(pi/2)*(1-2*normcdf(-sqrt(SNR))) ) * r1/r0 + r2/r0;
 Pe = 1 - normcdf(beta1 .* beta2 .* sqrt(2/(pi*r1)) - sqrt(r1) .* sqrt(SNR)); 
 plot(beta1, Pe, '-', 'color', [0 0 1], 'linewidth', 1.3);
 
 SNR = 5; % 信噪比，dB形式
 SNR = power(10, SNR / 10); % 信噪比，原始比例形式
-xi = floor((1-2*normcdf(-sqrt(SNR)))*r1)
-beta2 = sqrt(pi/2)*xi/r0*sqrt(SNR)+r2/r0;
+beta2 = ( exp(-SNR/2) + sqrt(SNR)*sqrt(pi/2)*(1-2*normcdf(-sqrt(SNR))) ) * r1/r0 + r2/r0;
 Pe = 1 - normcdf(beta1 .* beta2 .* sqrt(2/(pi*r1)) - sqrt(r1) .* sqrt(SNR)); 
 plot(beta1, Pe, '-.', 'color', [1 0 1], 'linewidth', 1.3);
 
 SNR = 8; % 信噪比，dB形式
 SNR = power(10, SNR / 10); % 信噪比，原始比例形式
-xi = floor((1-2*normcdf(-sqrt(SNR)))*r1)
-beta2 = sqrt(pi/2)*xi/r0*sqrt(SNR)+r2/r0;
+beta2 = ( exp(-SNR/2) + sqrt(SNR)*sqrt(pi/2)*(1-2*normcdf(-sqrt(SNR))) ) * r1/r0 + r2/r0;
 Pe = 1 - normcdf(beta1 .* beta2 .* sqrt(2/(pi*r1)) - sqrt(r1) .* sqrt(SNR)); 
 plot(beta1, Pe, ':.', 'color', [1 0 0], 'linewidth', 1.3);
 
 SNR = 10; % 信噪比，dB形式
 SNR = power(10, SNR / 10); % 信噪比，原始比例形式
-xi = floor((1-2*normcdf(-sqrt(SNR)))*r1)
-beta2 = sqrt(pi/2)*xi/r0*sqrt(SNR)+r2/r0;
+beta2 = ( exp(-SNR/2) + sqrt(SNR)*sqrt(pi/2)*(1-2*normcdf(-sqrt(SNR))) ) * r1/r0 + r2/r0;
 Pe = 1 - normcdf(beta1 .* beta2 .* sqrt(2/(pi*r1)) - sqrt(r1) .* sqrt(SNR)); 
 plot(beta1, Pe, '--', 'color', [60/255 179/255 113/255], 'linewidth', 1.3);
 

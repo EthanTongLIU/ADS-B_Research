@@ -15,24 +15,24 @@ SNR = linspace(0.1, 15, 1000); % 信噪比，原始比例形式
 beta1 = 40; % 检测门限
 % Pd = 1 - normcdf((beta1-r1).*sqrt(pi/((4-pi)*r1)) - sqrt(2*r1.*SNR./(4-pi))); % model3
 Pd = 1 - normcdf(beta1 .* sqrt(2/(pi*r1)) - sqrt(r1) .* sqrt(SNR));
-plot(10*log10(SNR), Pd, '-', 'color', [0 0 1], 'linewidth', 1.3);
+plot(10*log10(SNR), Pd, '-', 'color', [0 0 1], 'linewidth', 1.1);
 
 beta1 = 60; % 检测门限
 % Pd = 1 - normcdf((beta1-r1).*sqrt(pi/((4-pi)*r1)) - sqrt(2*r1.*SNR./(4-pi))); % model3
 Pd = 1 - normcdf(beta1 .* sqrt(2/(pi*r1)) - sqrt(r1) .* sqrt(SNR));
-plot(10*log10(SNR), Pd, '-.', 'color', [1 0 1], 'linewidth', 1.3);
+plot(10*log10(SNR), Pd, '-.', 'color', [1 0 1], 'linewidth', 1.1);
 
 SNR = linspace(0.1, 15, 100); % 信噪比，原始比例形式
 
 beta1 = 80; % 检测门限
 % Pd = 1 - normcdf((beta1-r1).*sqrt(pi/((4-pi)*r1)) - sqrt(2*r1.*SNR./(4-pi))); % model3
 Pd = 1 - normcdf(beta1 .* sqrt(2/(pi*r1)) - sqrt(r1) .* sqrt(SNR));
-plot(10*log10(SNR), Pd, ':.', 'color', [1 0 0], 'linewidth', 1.3);
+plot(10*log10(SNR), Pd, ':.', 'color', [1 0 0], 'linewidth', 1.1);
 
 beta1 = 100; % 检测门限
 % Pd = 1 - normcdf((beta1-r1).*sqrt(pi/((4-pi)*r1)) - sqrt(2*r1.*SNR./(4-pi))); % model3
 Pd = 1 - normcdf(beta1 .* sqrt(2/(pi*r1)) - sqrt(r1) .* sqrt(SNR));
-plot(10*log10(SNR), Pd, '--', 'color', [60/255 179/255 113/255], 'linewidth', 1.3);
+plot(10*log10(SNR), Pd, '--', 'color', [60/255 179/255 113/255], 'linewidth', 1.1);
 
 % --- 仿真值
 
@@ -60,7 +60,7 @@ leg = legend('  40 (理论值)', '  60 (理论值)', '  80 (理论值)', '100 (理论值)', 
 title(leg, '\beta_{1}');
 set(leg, 'location', 'northwest');
 
-xlabel('$SNR / dB$', 'interpreter', 'latex');
+xlabel('${\rm SNR} / {\rm dB}$', 'interpreter', 'latex');
 ylabel('$P_{d}$', 'interpreter', 'latex');
 axis([-10 10 0 1]);
 grid on;

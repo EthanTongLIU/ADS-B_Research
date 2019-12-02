@@ -20,13 +20,17 @@ C = -2*log(beta2);
 beta1Q = (-B+sqrt(B.^2-4*A.*C))./(2*A);
 fQ = Pd(beta1Q) - Pe(beta1Q);
 
-plot(beta1Q, fQ, '-o');
+plot(beta1Q, fQ, 'color', 'b', 'linewidth', 1.1);
+xlabel('${\beta_{1}}_{Q}$', 'interpreter', 'latex');
+ylabel('$P_{d}-P_{e}$', 'interpreter', 'latex');
 grid on;
 
-figure;
-plot(10*log10(SNR), fQ, '-s');
-grid on;
+% figure;
+% plot(10*log10(SNR), fQ, '-s');
+% grid on;
 
 figure;
-plot(10*log10(SNR), beta1Q, ':o');
+plot(10*log10(SNR), beta1Q, 'color', 'b', 'linewidth', 1.1);
+xlabel('${\rm SNR}/{\rm dB}$', 'interpreter', 'latex');
+ylabel('${\beta_{1}}_{Q}$', 'interpreter', 'latex');
 grid on;

@@ -19,8 +19,8 @@ plot([-8 -7 -6 -5 ...
     7.9617e-4]),...
     '-s', 'color', 'r', 'linewidth', 1.1);
 
-beta1 = 60;
-Pfa = 1 - normcdf((beta1 - r1)/sqrt(r1*(4-pi)/pi));
+beta1 = 40;
+Pfa = 1 - normcdf(sqrt(2/pi)/sqrt(r1)*beta1);
 Pfa = log10(Pfa);
 plot([-8 5], [Pfa Pfa], '--', 'color', 'b', 'linewidth', 1.1);
 
@@ -35,12 +35,12 @@ plot([-8 5], [Pfa Pfa], '--', 'color', 'b', 'linewidth', 1.1);
 %     8.3718e-4 9.0326e-4 9.5197e-4 9.6724e-4 9.622e-4 9.3810e-4]),...
 %     '-s', 'color', 'r', 'linewidth', 1.3);
 
-leg = legend('增强型脉冲位置检测', '$\beta_1=60$ (CFAR)');
+leg = legend('增强型脉冲位置检测', '$\beta_1=40$ (CFAR)');
 set(leg, 'interpreter', 'latex');
 
 set(gca, 'yticklabel',{'10^{-7}','10^{-6}', '10^{-5}', '10^{-4}', '10^{-3}', '10^{-2}', '10^{-1}', '1'});
 
-xlabel('$SNR / dB$', 'interpreter', 'latex');
+xlabel('${\rm SNR} / {\rm dB}$', 'interpreter', 'latex');
 ylabel('$P_{fa}$', 'interpreter', 'latex');
-axis([-8 8 -7 0]);
+% axis([-8 8 -7 0]);
 grid on;

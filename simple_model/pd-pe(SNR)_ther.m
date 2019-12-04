@@ -41,16 +41,20 @@ Pd = 1 - normcdf(beta1 .* sqrt(2/(pi*r1)) - sqrt(r1) .* sqrt(SNR));
 Pe = 1 - normcdf(beta1 .* beta2 .* sqrt(2/(pi*r1)) - sqrt(r1) .* sqrt(SNR)); 
 plot(10*log10(SNR), Pd - Pe, '--', 'color', [60/255 179/255 113/255], 'linewidth', 1.1);
 
-leg = legend('  40', '  60', '  80', '100');
-title(leg, '\beta_{1}');
-set(leg, 'location', 'northwest');
+% --------------------------------
+% 最优曲线
+
+plot(SNRdBQ, fQ, ':', 'color', 'k', 'linewidth', 1.1);
+
+% --------------------------------
+
+leg = legend('$\beta_{1} = 40$', '$\beta_{1} = 60$', '$\beta_{1} = 80$', '$\beta_{1} = 100$', '最优');
+% title(leg, '\beta_{1}');
+set(leg, 'location', 'northwest', 'interpreter', 'latex');
 
 xlabel('${\rm SNR} / {\rm dB}$', 'interpreter', 'latex');
 ylabel('$P_{d} - P_{e}$', 'interpreter', 'latex');
 grid on;
-
-plot(snrs, fQ, ':')
-
 
 
 

@@ -19,10 +19,21 @@ plot([-8 -7 -6 -5 ...
     7.9617e-4]),...
     '-s', 'color', 'r', 'linewidth', 1.1);
 
+SNRdB = -8 : 1 : 5;
+SNR = 10.^(SNRdB/10);
+Pfa2 = 1 - normcdf(sqrt(r1)/2*sqrt(SNR));
+Pfa2 = log10(Pfa2);
+plot(SNRdB, Pfa2, '-o', 'color', [60/255 179/255 113/255], 'linewidth', 1.1);
+
 beta1 = 40;
 Pfa = 1 - normcdf(sqrt(2/pi)/sqrt(r1)*beta1);
 Pfa = log10(Pfa);
 plot([-8 5], [Pfa Pfa], '--', 'color', 'b', 'linewidth', 1.1);
+
+beta1 = 50;
+Pfa = 1 - normcdf(sqrt(2/pi)/sqrt(r1)*beta1);
+Pfa = log10(Pfa);
+plot([-8 5], [Pfa Pfa], '-.', 'color', 'm', 'linewidth', 1.1);
 
 % plot([-8 -7 -6 -5 ... 
 %     -4 -3 -2 -1 ...
@@ -35,12 +46,12 @@ plot([-8 5], [Pfa Pfa], '--', 'color', 'b', 'linewidth', 1.1);
 %     8.3718e-4 9.0326e-4 9.5197e-4 9.6724e-4 9.622e-4 9.3810e-4]),...
 %     '-s', 'color', 'r', 'linewidth', 1.3);
 
-leg = legend('‘ˆ«ø–Õ¬ˆ≥ÂŒª÷√ºÏ≤‚', '$\beta_1=40$ (CFAR)');
+leg = legend('¬ˆ≥ÂŒª÷√ºÏ≤‚', 'πÃ∂®√≈œﬁ∆•≈‰¬À≤®', '$\beta_1=40$ (CFAR)', '$\beta_1=50$ (CFAR)');
 set(leg, 'interpreter', 'latex');
 
-set(gca, 'yticklabel',{'10^{-7}','10^{-6}', '10^{-5}', '10^{-4}', '10^{-3}', '10^{-2}', '10^{-1}', '1'});
+set(gca, 'yticklabel',{'10^{-10}', '10^{-9}', '10^{-8}', '10^{-7}','10^{-6}', '10^{-5}', '10^{-4}', '10^{-3}', '10^{-2}', '10^{-1}', '1'});
 
 xlabel('${\rm SNR} / {\rm dB}$', 'interpreter', 'latex');
 ylabel('$P_{fa}$', 'interpreter', 'latex');
-% axis([-8 8 -7 0]);
+axis([-8 6 -10 0]);
 grid on;

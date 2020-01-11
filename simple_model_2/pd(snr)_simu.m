@@ -38,7 +38,7 @@ Pfa = 10^-16;
 beta1 = sqrt(pi/2*r1)*norminv(1-Pfa); % 检测门限
 
 passtime = 0; % 检测到报头的次数记录
-for cycletime = 1 : 20000 % 重复进行蒙特卡洛仿真实验
+for cycletime = 1 : 1 % 重复进行蒙特卡洛仿真实验
     
     % 以下两种噪声定义形式相同，都采用纯高斯白噪声
     % e = normrnd(0, sigma, 1, length(p));
@@ -57,51 +57,75 @@ for cycletime = 1 : 20000 % 重复进行蒙特卡洛仿真实验
     % e = coef.*e;
    
     % 信号序列
-    sd = alpha * m + e;
+    sd = alpha * m;
+    % sd = alpha * m + e;
     
     % 数据存储矩阵
     sc = zeros(1, length(p) - M + 1);
     me = zeros(1, length(p) - M + 1);
     cfardata = zeros(1, length(p) - M + 1);
     
-%     % 单次检验性质
-%     for i = 1 : length(sd) - M + 1
-%         me(i) = mean(abs([sd(i+11:i+11+11-1), sd(i+33:i+33+44-1), sd(i+88:i+88+11-1), sd(i+110:i+110+66-1)])); % 噪声包络均值
-%         sc(i) = pd * sd(i:i+M-1)'; % 滑动求和结果
-%         if (sc(i) / me(i) > beta1)
-%             cfardata(i) = sc(i) / me(i);
-%         end
-%     end
-    
-    % 多次统计检测率
-    for i = 1761
+    % 单次检验性质
+    for i = 1 : length(sd) - M + 1
         me(i) = mean(abs([sd(i+11:i+11+11-1), sd(i+33:i+33+44-1), sd(i+88:i+88+11-1), sd(i+110:i+110+66-1)])); % 噪声包络均值
         sc(i) = pd * sd(i:i+M-1)'; % 滑动求和结果
         if (sc(i) / me(i) > beta1)
-            if (i == 1761)
-                passtime = passtime + 1;
-                break;
-            end
+            cfardata(i) = sc(i) / me(i);
         end
     end
     
+%     % 多次统计检测率
+%     for i = 1761
+%         me(i) = mean(abs([sd(i+11:i+11+11-1), sd(i+33:i+33+44-1), sd(i+88:i+88+11-1), sd(i+110:i+110+66-1)])); % 噪声包络均值
+%         sc(i) = pd * sd(i:i+M-1)'; % 滑动求和结果
+%         if (sc(i) / me(i) > beta1)
+%             if (i == 1761)
+%                 passtime = passtime + 1;
+%                 break;
+%             end
+%         end
+%     end
+    
 end
 
-% % 单次检验性质
-% figure;
-% subplot(411);
-% plot(e);title('e');
-% subplot(412);
-% plot(sc);title('sc');
-% subplot(413);
-% plot(me);title('me');
-% subplot(414);
-% plot(cfardata);title('cfardata');
-% [maxcfardata, tag] = max(cfardata)
+% 单次检验性质
+figure;
+subplot(411);
+plot(e);title('e');
+subplot(412);
+plot(sc);title('sc');
+subplot(413);
+plot(me);title('me');
+subplot(414);
+plot(cfardata);title('cfardata');
+[maxcfardata, tag] = max(cfardata)
 
-% 多次统计检测率
-passtime
-pd = passtime/20000
+% 画一个相关峰
+figure;
+scc = sc(1651:1871)/max(sc);
+plot(1:length(scc), scc, 'color', 'k');
+axis([1 length(scc) 0 1]);
+
+set(gcf, 'units', 'centimeters', 'Position', [12 12 6 4]);%设置图片大小为 6cm×6cm
+xlabel('t$({\rm \mu s})$', 'interpreter', 'latex');
+ylabel('$s_{c}$', 'interpreter', 'latex');
+
+set(gca, 'xtick', [12 34 56 89 111 133 166 188 210]); 
+set(gca, 'xticklabel', [-4.5 -3.5 -2.5 -1 0 1 2.5 3.5 4.5]); 
+
+set(get(gca, 'xlabel'), 'fontsize', 7, 'fontname', 'euclid'); % 坐标轴标签
+set(get(gca, 'ylabel'), 'fontsize', 7, 'fontname', 'euclid'); % 坐标轴标签
+set(gca, 'fontsize', 7, 'fontname', 'euclid'); % 坐标轴
+set(gca, 'linewidth', 0.5); % 坐标轴线粗0.5磅
+set(gca, 'box', 'on');
+set(get(gca,'Children'), 'linewidth', 0.5); %设置图中线宽0.5磅
+grid on;
+set(gca, 'gridlinestyle', ':', 'GridColor', 'k', 'gridalpha', 1);
+
+
+% % 多次统计检测率
+% passtime
+% pd = passtime/20000
 
 
 
